@@ -35,6 +35,13 @@
     <!-- 依赖声明 -->
     <dependencyManagement>
         <dependencies>
+            <!--      lombok注解      自动为所有字段生成getter和setter方法-->
+            <dependency>
+                <groupId>org.projectlombok</groupId>
+                <artifactId>lombok</artifactId>
+                <version>1.18.22</version>
+                <scope>provided</scope>
+            </dependency>
 
             <!-- SpringBoot的依赖配置-->
             <dependency>
@@ -169,6 +176,8 @@
                 <artifactId>ruoyi-common</artifactId>
                 <version>${ruoyi.version}</version>
             </dependency>
+
+
 
         </dependencies>
     </dependencyManagement>

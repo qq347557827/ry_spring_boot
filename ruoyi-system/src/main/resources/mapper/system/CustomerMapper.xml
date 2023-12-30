@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.CustomerMapper">
+
+    <resultMap type="Customer" id="CustomerResult">
+        <result property="id"    column="id"    />
+        <result property="name"    column="name"    />
+        <result property="phone"    column="phone"    />
+        <result property="wechat"    column="wechat"    />
+        <result property="sourceChannel"    column="source_channel"    />
+        <result property="age"    column="age"    />
+        <result property="height"    column="height"    />
+        <result property="weight"    column="weight"    />
+        <result property="loseWeight"    column="lose_weight"    />
+        <result property="province"    column="province"    />
+        <result property="city"    column="city"    />
+        <result property="district"    column="district"    />
+        <result property="areaCode"    column="area_code"    />
+        <result property="detailAddress"    column="detail_address"    />
+        <result property="userId"    column="user_id"    />
+        <result property="userName"    column="user_name"    />
+        <result property="deptId"    column="dept_id"    />
+        <result property="deptName"    column="dept_name"    />
+        <result property="wechatDate"    column="wechat_date"    />
+        <result property="createDate"    column="create_date"    />
+        <result property="remark"    column="remark"    />
+    </resultMap>
+
+    <sql id="selectCustomerVo">
+        select c.id,
+               c.name,
+               c.phone,
+               c.wechat,
+               c.source_channel,
+               c.age,
+               c.height,
+               c.weight,
+               c.lose_weight,
+               c.province,
+               c.city,
+               c.district,
+               c.area_code,
+               c.detail_address,
+               c.user_id,
+               c.dept_id,
+               c.wechat_date,
+               c.create_date,
+               c.remark,
+               u.user_name,
+               d.dept_name
+        from customer c
+                 left join
+             sys_user u on c.user_id = u.user_id
+                 left join
+             sys_dept d on c.dept_id = d.dept_id
+    </sql>
+
+    <select id="selectCustomerList" parameterType="Customer" resultMap="CustomerResult">
+        <include refid="selectCustomerVo"/>
+        <where>
+            <if test="name != null  and name != ''"> and c.name like concat('%', #{name}, '%')</if>
+            <if test="phone != null  and phone != ''"> and c.phone = #{phone}</if>
+            <if test="wechat != null  and wechat != ''"> and c.wechat = #{wechat}</if>
+            <if test="sourceChannel != null  and sourceChannel != ''"> and c.source_channel = #{sourceChannel}</if>
+            <if test="age != null  and age != ''"> and c.age = #{age}</if>
+            <if test="height != null  and height != ''"> and c.height = #{height}</if>
+            <if test="weight != null  and weight != ''"> and c.weight = #{weight}</if>
+            <if test="loseWeight != null  and loseWeight != ''"> and c.lose_weight = #{loseWeight}</if>
+            <if test="province != null  and province != ''"> and c.province = #{province}</if>
+            <if test="city != null  and city != ''"> and c.city = #{city}</if>
+            <if test="district != null  and district != ''"> and c.district = #{district}</if>
+            <if test="detailAddress != null  and detailAddress != ''"> and c.detail_address = #{detailAddress}</if>
+            <if test="areaCode != null  and areaCode != ''"> and c.area_code = #{areaCode}</if>
+            <if test="userId != null "> and c.user_id = #{userId}</if>
+            <if test="deptId != null "> and c.dept_id = #{deptId}</if>
+            <if test="wechatDate != null "> and c.wechat_date = #{wechatDate}</if>
+            <if test="createDate != null "> and c.create_date = #{createDate}</if>
+            ${params.dataScope}
+        </where>
+        ORDER BY c.create_date DESC
+    </select>
+
+    <select id="selectCustomerById" parameterType="Long" resultMap="CustomerResult">
+        <include refid="selectCustomerVo"/>
+        where c.id = #{id}
+    </select>
+
+    <insert id="insertCustomer" parameterType="Customer" useGeneratedKeys="true" keyProperty="id">
+        insert into customer
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">id,</if>
+            <if test="name != null">name,</if>
+            <if test="phone != null">phone,</if>
+            <if test="wechat != null">wechat,</if>
+            <if test="sourceChannel != null">source_channel,</if>
+            <if test="age != null">age,</if>
+            <if test="height != null">height,</if>
+            <if test="weight != null">weight,</if>
+            <if test="loseWeight != null">lose_weight,</if>
+            <if test="province != null">province,</if>
+            <if test="city != null">city,</if>
+            <if test="district != null">district,</if>
+            <if test="detailAddress != null">area_code,</if>
+            <if test="areaCode != null">detail_address,</if>
+            <if test="userId != null">user_id,</if>
+            <if test="deptId != null">dept_id,</if>
+            <if test="wechatDate != null">wechat_date,</if>
+            <if test="remark != null">remark,</if>
+            create_date
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">#{id},</if>
+            <if test="name != null">#{name},</if>
+            <if test="phone != null">#{phone},</if>
+            <if test="wechat != null">#{wechat},</if>
+            <if test="sourceChannel != null">#{sourceChannel},</if>
+            <if test="age != null">#{age},</if>
+            <if test="height != null">#{height},</if>
+            <if test="weight != null">#{weight},</if>
+            <if test="loseWeight != null">#{loseWeight},</if>
+            <if test="province != null">#{province},</if>
+            <if test="city != null">#{city},</if>
+            <if test="district != null">#{district},</if>
+            <if test="areaCode != null">#{areaCode},</if>
+            <if test="detailAddress != null">#{detailAddress},</if>
+            <if test="userId != null">#{userId},</if>
+            <if test="deptId != null">#{deptId},</if>
+            <if test="wechatDate != null">#{wechatDate},</if>
+            <if test="remark != null">#{remark},</if>
+            NOW()
+        </trim>
+    </insert>
+
+    <update id="updateCustomer" parameterType="Customer">
+        update customer
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="name != null">name = #{name},</if>
+            <if test="phone != null">phone = #{phone},</if>
+            <if test="wechat != null">wechat = #{wechat},</if>
+            <if test="sourceChannel != null">source_channel = #{sourceChannel},</if>
+            <if test="age != null">age = #{age},</if>
+            <if test="height != null">height = #{height},</if>
+            <if test="weight != null">weight = #{weight},</if>
+            <if test="loseWeight != null">lose_weight = #{loseWeight},</if>
+            <if test="province != null">province = #{province},</if>
+            <if test="city != null">city = #{city},</if>
+            <if test="district != null">district = #{district},</if>
+            <if test="areaCode != null">area_code = #{areaCode},</if>
+            <if test="detailAddress != null">detail_address = #{detailAddress},</if>
+            <if test="userId != null">user_id = #{userId},</if>
+            <if test="deptId != null">dept_id = #{deptId},</if>
+            <if test="wechatDate != null">wechat_date = #{wechatDate},</if>
+            <if test="remark != null">remark = #{remark},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteCustomerById" parameterType="Long">
+        delete from customer where id = #{id}
+    </delete>
+
+    <delete id="deleteCustomerByIds" parameterType="String">
+        delete from customer where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>
