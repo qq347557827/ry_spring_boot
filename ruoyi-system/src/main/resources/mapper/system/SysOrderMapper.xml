@@ -1,0 +1,323 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.SysOrderMapper">
+    <resultMap type="SysOrder" id="SysOrderResult">
+        <result property="orderId" column="order_id"/>
+        <result property="status" column="status"/>
+        <result property="customerId" column="customer_id"/>
+        <result property="name" column="name"/>
+        <result property="phone" column="phone"/>
+        <result property="province"    column="province"    />
+        <result property="city"    column="city"    />
+        <result property="district"    column="district"    />
+        <result property="areaCode"    column="area_code"    />
+        <result property="detailAddress"    column="detail_address"    />
+        <result property="wechat" column="wechat"/>
+        <result property="createTime" column="create_time"/>
+        <!--        <result property="goodsId"    column="goods_id"    />-->
+        <!--        <result property="quantity"    column="quantity"    />-->
+        <result property="totalAmount" column="total_amount"/>
+        <result property="deposit" column="deposit"/>
+        <result property="payMethod" column="pay_method"/>
+        <result property="secondaryRevenue" column="secondary_revenue"/>
+        <result property="secondaryRevenueMethod" column="secondary_revenue_method"/>
+        <result property="collectAmount" column="collect_amount"/>
+        <result property="refund" column="refund"/>
+        <result property="actualAmount" column="actual_amount"/>
+        <result property="exportShipment" column="export_shipment"/>
+        <result property="exportTime" column="export_time"/>
+        <result property="orderType" column="order_type"/>
+        <result property="userId" column="user_id"/>
+        <result property="userName" column="user_name"/>
+        <result property="deptId" column="dept_id"/>
+        <result property="deptName" column="dept_name"/>
+        <result property="oldId" column="old_id"/>
+        <result property="expressCompany" column="express_company"/>
+        <result property="trackingNumber" column="tracking_number"/>
+        <result property="sourceChannel" column="source_channel"/>
+        <result property="remark" column="remark"/>
+        <collection property="orderGoodsList" ofType="SysOrderGoods" column="order_id" select="selectSysOrderGoodsByOrderId" />
+
+    </resultMap>
+    <resultMap id="SysOrderGoodsResult" type="SysOrderGoods" >
+        <result property="orderId" column="order_id"/>
+        <result property="goodsId" column="goods_id"/>
+        <result property="goodsName" column="goods_name"/>
+        <result property="quantity" column="quantity"/>
+    </resultMap>
+    <resultMap id="SysOrderExport" type="SysOrderExport" >
+        <result property="orderId" column="order_id"/>
+        <result property="name" column="name"/>
+        <result property="phone" column="phone"/>
+        <result property="address" column="address"/>
+        <result property="collectAmount" column="collect_amount"/>
+        <result property="expressCompany" column="express_company"/>
+        <result property="trackingNumber" column="tracking_number"/>
+        <collection property="orderGoodsList" ofType="SysOrderGoods" column="order_id" select="selectSysOrderGoodsByOrderId" />
+    </resultMap>
+
+    <select id="selectSysOrderExportList" parameterType="SysOrder" resultMap="SysOrderExport">
+        select order_id, name, phone, address, collect_amount, express_company, tracking_number  from sys_order where export_shipment = #{exportShipment} and status = #{status}
+    </select>
+
+    <sql id="selectSysOrderVo">
+        select o.order_id,
+               o.status,
+               o.customer_id,
+               o.name,
+               o.phone,
+               o.province,
+               o.city,
+               o.district,
+               o.area_code,
+               o.detail_address,
+               o.wechat,
+               o.create_time,
+               o.total_amount,
+               o.deposit,
+               o.collect_amount,
+               o.refund,
+               o.pay_method,
+               o.secondary_revenue,
+               o.secondary_revenue_method,
+               o.actual_amount,
+               o.export_shipment,
+               o.order_type,
+               o.user_id,
+               o.dept_id,
+               u.user_name,
+               d.dept_name,
+               o.old_id,
+               o.express_company,
+               o.tracking_number,
+               o.remark,
+               o.source_channel
+--                g.name as goods_name
+        from sys_order o
+                 left join sys_user u on o.user_id = u.user_id
+                 left join sys_dept d on o.dept_id = d.dept_id
+    </sql>
+
+    <select id="selectSysOrderList" parameterType="SysOrder" resultMap="SysOrderResult">
+        <include refid="selectSysOrderVo"/>
+        <where>
+            <if test="orderId != null  and orderId != ''">and o.order_id = #{orderId}</if>
+            <if test="status != null and status != ''">and o.status = #{status}</if>
+            <if test="customerId != null  and customerId != ''">and o.customer_id = #{customerId}</if>
+            <if test="name != null  and name != ''">and o.name like concat('%', #{name}, '%')</if>
+            <if test="phone != null  and phone != ''">and o.phone = #{phone}</if>
+            <if test="city != null  and city != ''">and o.city = #{city}</if>
+            <if test="district != null  and district != ''">and o.district = #{district}</if>
+            <if test="detailAddress != null  and detailAddress != ''">and o.detail_address = #{detailAddress}</if>
+            <if test="province != null  and province != ''">and o.province = #{province}</if>
+            <if test="areaCode != null  and areaCode != ''">and o.area_code = #{areaCode}</if>
+            <if test="wechat != null  and wechat != ''">and o.wechat = #{wechat}</if>
+            <if test="userId != null ">and o.user_id = #{userId}</if>
+            <if test="deptId != null ">and o.dept_id = #{deptId}</if>
+            <if test="totalAmount != null ">and o.total_amount = #{totalAmount}</if>
+            <if test="deposit != null ">and o.deposit = #{deposit}</if>
+            <if test="collectAmount != null ">and o.collect_amount = #{collectAmount}</if>
+            <if test="refund != null ">and o.refund = #{refund}</if>
+            <if test="actualAmount != null ">and o.actual_amount = #{actualAmount}</if>
+            <if test="exportShipment != null ">
+                <choose>
+                    <when test="exportShipment == 0">
+                        <!-- 当 exportShipment = 0 时，查询小于 1 的条件 -->
+                        and o.export_shipment &lt; 1
+                    </when>
+                    <otherwise>
+                        <!-- 当 exportShipment = 1 时，查询大于等于 1 的条件 -->
+                        and o.export_shipment >= 1
+                    </otherwise>
+                </choose>
+            </if>
+
+            <if test="orderType != null  and orderType != ''">and o.order_type = #{orderType}</if>
+            <if test="oldId != null  and oldId != ''">and o.old_id = #{oldId}</if>
+            <if test="expressCompany != null  and expressCompany != ''">and o.express_company = #{expressCompany}</if>
+            <if test="trackingNumber != null  and trackingNumber != ''">and o.tracking_number = #{trackingNumber}</if>
+            <if test="sourceChannel != null  and sourceChannel != ''">and o.source_channel = #{sourceChannel}</if>
+            ${params.dataScope}
+
+        </where>
+        ORDER BY o.create_time DESC
+    </select>
+
+    <select id="selectSysOrderByOrderId" parameterType="String" resultMap="SysOrderResult">
+        <include refid="selectSysOrderVo"/>
+        where order_id = #{orderId}
+    </select>
+
+    <select id="selectSysOrderStatusByOrderId" parameterType="String" resultMap="SysOrderResult">
+        select status from sys_order where order_id = #{orderId}
+    </select>
+
+    <select id="selectOrdersByOrderIds" parameterType="java.util.List" resultMap="SysOrderExport">
+        SELECT * FROM sys_order
+        WHERE order_id IN
+        <foreach item="orderId" collection="list" open="(" separator="," close=")">
+            #{orderId}
+        </foreach>
+    </select>
+
+    <select id="selectSysOrderGoodsByOrderId" resultMap="SysOrderGoodsResult">
+        select og.goods_id,
+               og.quantity,
+               g.goods_name
+        from sys_order_goods og
+                 left join sys_goods g on og.goods_id = g.goods_id
+        where og.order_id = #{orderId}
+    </select>
+
+
+    <insert id="insertSysOrderGoods" parameterType="SysOrder">
+        INSERT INTO sys_order_goods (order_id, goods_id, quantity)
+        VALUES
+        <foreach collection="orderGoodsList" item="item" separator=",">
+            ( #{orderId}, #{item.goodsId}, #{item.quantity})
+        </foreach>
+    </insert>
+
+    <insert id="insertSysOrder" parameterType="SysOrder" >
+        INSERT INTO sys_order
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="orderId != null">order_id,</if>
+            <if test="orderType != null and orderType != ''">order_type,</if>
+            <if test="status != null">status,</if>
+            <if test="customerId != null and customerId != ''">customer_id,</if>
+            <if test="name != null and name != ''">name,</if>
+            <if test="phone != null and phone != ''">phone,</if>
+            <if test="province != null">province,</if>
+            <if test="city != null">city,</if>
+            <if test="district != null">district,</if>
+            <if test="detailAddress != null">area_code,</if>
+            <if test="areaCode != null">detail_address,</if>
+            <if test="wechat != null and wechat != ''">wechat,</if>
+            <if test="totalAmount != null">total_amount,</if>
+            <if test="deposit != null">deposit,</if>
+            <if test="payMethod != null">pay_method,</if>
+            <if test="secondaryRevenue != null">secondary_revenue,</if>
+            <if test="secondaryRevenueMethod != null">secondary_revenue_method,</if>
+            <if test="collectAmount != null">collect_amount,</if>
+            <if test="refund != null">refund,</if>
+            <if test="actualAmount != null">actual_amount,</if>
+            <if test="exportShipment != null">export_shipment,</if>
+            <if test="oldId != null and oldId != ''">old_id,</if>
+            <if test="userId != null">user_id,</if>
+            <if test="deptId != null">dept_id,</if>
+            <if test="expressCompany != null">express_company,</if>
+            <if test="trackingNumber != null">tracking_number,</if>
+            <if test="remark != null">remark,</if>
+            <if test="sourceChannel != null">source_channel,</if>
+            create_time
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="orderId != null">#{orderId},</if>
+            <if test="orderType != null and orderType != ''">#{orderType},</if>
+            <if test="status != null and status != ''">#{status},</if>
+            <if test="customerId != null and customerId != ''">#{customerId},</if>
+            <if test="name != null and name != ''">#{name},</if>
+            <if test="phone != null and phone != ''">#{phone},</if>
+            <if test="province != null">#{province},</if>
+            <if test="city != null">#{city},</if>
+            <if test="district != null">#{district},</if>
+            <if test="areaCode != null">#{areaCode},</if>
+            <if test="detailAddress != null">#{detailAddress},</if>
+            <if test="wechat != null and wechat != ''">#{wechat},</if>
+            <if test="totalAmount != null">#{totalAmount},</if>
+            <if test="deposit != null">#{deposit},</if>
+            <if test="payMethod != null">#{payMethod},</if>
+            <if test="secondaryRevenue != null">#{secondaryRevenue},</if>
+            <if test="secondaryRevenueMethod != null">#{secondaryRevenueMethod},</if>
+            <if test="collectAmount != null">#{collectAmount},</if>
+            <if test="refund != null">#{refund},</if>
+            <if test="actualAmount != null">#{actualAmount},</if>
+            <if test="exportShipment != null">#{exportShipment},</if>
+            <if test="oldId != null and oldId != ''">#{oldId},</if>
+            <if test="userId != null and userId != ''">#{userId},</if>
+            <if test="deptId != null and deptId != ''">#{deptId},</if>
+            <if test="expressCompany != null">#{expressCompany},</if>
+            <if test="trackingNumber != null">#{trackingNumber},</if>
+            <if test="remark != null">#{remark},</if>
+            <if test="sourceChannel != null">#{sourceChannel},</if>
+            sysdate()
+        </trim>
+    </insert>
+
+
+    <update id="updateSysOrder" parameterType="SysOrder">
+        update sys_order
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="status != null and status != ''">status = #{status},</if>
+            <if test="customerId != null and customerId != ''">customer_id = #{customerId},</if>
+            <if test="name != null and name != ''">name = #{name},</if>
+            <if test="phone != null and phone != ''">phone = #{phone},</if>
+            <if test="province != null">province = #{province},</if>
+            <if test="city != null">city = #{city},</if>
+            <if test="district != null">district = #{district},</if>
+            <if test="areaCode != null">area_code = #{areaCode},</if>
+            <if test="detailAddress != null">detail_address = #{detailAddress},</if>
+            <if test="wechat != null and wechat != ''">wechat = #{wechat},</if>
+            <if test="userId != null">user_id = #{userId},</if>
+            <if test="deptId != null">dept_id = #{deptId},</if>
+            <if test="totalAmount != null">total_amount = #{totalAmount},</if>
+            <if test="deposit != null">deposit = #{deposit},</if>
+            <if test="payMethod != null">pay_method = #{payMethod},</if>
+            <if test="secondaryRevenue != null">secondary_revenue = #{secondaryRevenue},</if>
+            <if test="secondaryRevenueMethod != null">secondary_revenue_method = #{secondaryRevenueMethod},</if>
+            <if test="collectAmount != null">collect_amount = #{collectAmount},</if>
+            <if test="refund != null">refund = #{refund},</if>
+            <if test="actualAmount != null">actual_amount = #{actualAmount},</if>
+            <if test="exportShipment != null">export_shipment = #{exportShipment},</if>
+            <if test="orderType != null and orderType != ''">order_type = #{orderType},</if>
+            <if test="oldId != null and oldId != ''">old_id = #{oldId},</if>
+            <if test="expressCompany != null">express_company = #{expressCompany},</if>
+            <if test="trackingNumber != null">tracking_number = #{trackingNumber},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="sourceChannel != null">source_channel = #{sourceChannel},</if>
+        </trim>
+        where order_id = #{orderId}
+    </update>
+
+    <update id="updateSysOrderGoods" parameterType="SysOrder">
+        update sys_order set
+        <foreach collection="orderGoodsList" index="index" item="item" separator=",">
+            ( #{orderId}, #{item.goodsId}, #{item.quantity})
+        </foreach>
+        where order_id = #{orderId}
+    </update>
+
+    <update id="approvalOrderStatusByOrderId" parameterType="SysOrder">
+        UPDATE sys_order SET status=#{status} WHERE order_id = #{orderId}
+    </update>
+
+
+    <update id="updateOrderExportShipmentByOrderId" parameterType="SysOrderExport">
+        UPDATE sys_order SET export_shipment = export_shipment + 1, export_time = NOW() WHERE order_id = #{orderId}
+    </update>
+
+    <update id="updateOrderShipment" parameterType="SysOrderExport">
+        UPDATE sys_order SET express_company = #{expressCompany}, tracking_number = #{trackingNumber}, status=3 WHERE order_id = #{orderId}
+    </update>
+
+    <delete id="deleteSysOrderGoodsByOrderId" parameterType="String">
+        DELETE
+        FROM sys_order_goods
+        WHERE order_id = #{orderId}
+    </delete>
+
+    <delete id="deleteSysOrderByOrderId" parameterType="String">
+        delete
+        from sys_order
+        where order_id = #{orderId}
+    </delete>
+
+    <delete id="deleteSysOrderByOrderIds" parameterType="String">
+        delete from sys_order where order_id in
+        <foreach item="orderId" collection="array" open="(" separator="," close=")">
+            #{orderId}
+        </foreach>
+    </delete>
+</mapper>
