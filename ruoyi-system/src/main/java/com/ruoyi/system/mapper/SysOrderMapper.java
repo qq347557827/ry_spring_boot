@@ -1,11 +1,13 @@
 package com.ruoyi.system.mapper;
 
+import com.ruoyi.system.domain.OrderAmount;
 import com.ruoyi.system.domain.SysOrder;
 import com.ruoyi.system.domain.SysOrderExport;
 import com.ruoyi.system.domain.SysOrderGoods;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 订单Mapper接口
@@ -13,7 +15,7 @@ import java.util.List;
  * @author ruoyi
  * @date 2023-11-23
  */
-public interface SysOrderMapper 
+public interface SysOrderMapper
 {
     /**
      * 查询订单
@@ -46,6 +48,18 @@ public interface SysOrderMapper
 
 
     public List<SysOrderGoods> selectSysOrderGoodsListByOrderId(String orderId);
+    /**
+     * 查询字段业绩
+     *
+     * @param columnToSum 订单
+     * @return 订单集合
+     */
+    public Float getTotalAmountInThisMonth(String columnToSum);
+//    public Float getTotalAmountInThisMonth();
+
+    public OrderAmount selectOrderStatisticsByTimeRange(Map params);
+
+
 
     /**
      * 新增订单

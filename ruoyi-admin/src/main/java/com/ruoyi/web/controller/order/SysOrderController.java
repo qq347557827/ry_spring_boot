@@ -9,9 +9,7 @@ import com.ruoyi.common.enums.BusinessType;
 import com.ruoyi.common.utils.SecurityUtils;
 import com.ruoyi.common.utils.poi.ExcelUtil;
 import com.ruoyi.framework.web.service.TokenService;
-import com.ruoyi.system.domain.SysOrder;
-import com.ruoyi.system.domain.SysOrderAndCustomer;
-import com.ruoyi.system.domain.SysOrderExport;
+import com.ruoyi.system.domain.*;
 import com.ruoyi.system.service.ISysOrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -43,7 +41,6 @@ public class SysOrderController extends BaseController
      */
     @DataScope(deptAlias = "d", userAlias = "u")
     @PreAuthorize("@ss.hasPermi('system:order:list')")
-
     @GetMapping("/list")
     @Log(title = "订单查询", businessType = BusinessType.OTHER)
     public TableDataInfo list(SysOrder sysOrder)
@@ -243,6 +240,19 @@ public class SysOrderController extends BaseController
     public AjaxResult secondaryRevenueByOrderId(@RequestBody SysOrder sysOrder)
     {
         return toAjax(sysOrderService.secondaryRevenueByOrderId(sysOrder));
+    }
+
+
+    /**
+     * 订单数据
+     */
+    @PreAuthorize("@ss.hasPermi('system:order:list')")
+    @DataScope(deptAlias = "d", userAlias = "u")
+    @Log(title = "金額數據查詢", businessType = BusinessType.OTHER)
+    @GetMapping("/selectOrderAllAmount")
+    public OrderStatistics selectOrderAllAmount(OrderStatistics orderStatistics)
+    {
+        return sysOrderService.selectOrderStatistics(orderStatistics);
     }
 
 }

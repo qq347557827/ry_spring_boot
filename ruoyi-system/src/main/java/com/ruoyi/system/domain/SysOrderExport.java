@@ -37,6 +37,24 @@ public class SysOrderExport {
     @Excel(name = "到件人地址", sort = 5)
     private String address;
 
+    private String province;
+
+    /**
+     * 城市
+     */
+    private String city;
+
+    /**
+     * 区县
+     */
+    private String district;
+
+
+    /**
+     * 详细地址
+     */
+    private String detailAddress;
+
     /**
      * 代收金额
      */
@@ -68,4 +86,38 @@ public class SysOrderExport {
 
     private ArrayList<String> searchIds;
 
+//    public String getAddress() {
+//        updateAddress();
+//        return address;
+//    }
+//
+//    public String getProvince() {
+//        updateAddress();
+//        return province;
+//    }
+//
+//    public String getCity() {
+//        updateAddress();
+//        return city;
+//    }
+//
+//
+//    public String getDistrict() {
+//        updateAddress();
+//        return district;
+//    }
+//
+//    private void updateAddress() {
+//        StringBuilder strBuilder = new StringBuilder();
+//        if (province != null) {
+//            strBuilder.append(province).append(" ");
+//        }
+//        if (city != null) {
+//            strBuilder.append(city).append(" ");
+//        }
+//        if (district != null) {
+//            strBuilder.append(district).append(" ");
+//        }
+//        address = strBuilder.append(detailAddress).toString();
+//    }
 }

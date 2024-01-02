@@ -51,7 +51,10 @@
         <result property="orderId" column="order_id"/>
         <result property="name" column="name"/>
         <result property="phone" column="phone"/>
-        <result property="address" column="address"/>
+        <result property="province"    column="province"    />
+        <result property="city"    column="city"    />
+        <result property="district"    column="district"    />
+        <result property="detailAddress"    column="detail_address"    />
         <result property="collectAmount" column="collect_amount"/>
         <result property="expressCompany" column="express_company"/>
         <result property="trackingNumber" column="tracking_number"/>
@@ -59,7 +62,7 @@
     </resultMap>
 
     <select id="selectSysOrderExportList" parameterType="SysOrder" resultMap="SysOrderExport">
-        select order_id, name, phone, address, collect_amount, express_company, tracking_number  from sys_order where export_shipment = #{exportShipment} and status = #{status}
+        select order_id, name, phone, province,city,district,detail_address, collect_amount, express_company, tracking_number  from sys_order where export_shipment = #{exportShipment} and status = #{status}
     </select>
 
     <sql id="selectSysOrderVo">
@@ -169,6 +172,67 @@
         from sys_order_goods og
                  left join sys_goods g on og.goods_id = g.goods_id
         where og.order_id = #{orderId}
+    </select>
+
+<!--    <select id="getTotalAmountInThisMonth" resultType="java.lang.Float">-->
+<!--        <![CDATA[-->
+<!--        SELECT SUM(total_amount)-->
+<!--        FROM sys_order-->
+<!--        WHERE DATE_FORMAT(create_time, '%Y-%m') = DATE_FORMAT(NOW(), '%Y-%m')-->
+<!--        ]]>-->
+<!--    </select>-->
+
+<!--    <select id="getTotalAmountInThisMonth" resultType="java.lang.Float" parameterType="String">-->
+<!--        SELECT-->
+<!--        <choose>-->
+<!--            <when test="columnToSum == 'total_amount'">-->
+<!--                SUM(total_amount)-->
+<!--            </when>-->
+<!--            <when test="columnToSum == 'deposit'">-->
+<!--                SUM(deposit)-->
+<!--            </when>-->
+<!--            <when test="columnToSum == 'collect_amount'">-->
+<!--                SUM(collect_amount)-->
+<!--            </when>-->
+<!--            &lt;!&ndash; 可以根据需要添加其他列 &ndash;&gt;-->
+<!--            <otherwise>-->
+<!--                &lt;!&ndash; 默认情况，如果未匹配到任何列 &ndash;&gt;-->
+<!--                SUM(total_amount)-->
+<!--            </otherwise>-->
+<!--        </choose>-->
+<!--        FROM sys_order-->
+<!--        WHERE DATE_FORMAT(create_time, '%Y-%m') = DATE_FORMAT(NOW(), '%Y-%m')-->
+<!--    </select>-->
+
+<!--    <select id="selectOrderStatisticsByTimeRange" parameterType="java.util.Map" resultType="com.ruoyi.system.domain.OrderAmount">-->
+<!--        SELECT-->
+<!--            COALESCE(SUM(total_amount), 0) as totalAmountSum,-->
+<!--            COALESCE(SUM(deposit), 0) as depositSum,-->
+<!--            COUNT(order_id) as orderCount,-->
+<!--            COALESCE(SUM(collect_amount), 0) as collectAmountSum,-->
+<!--            COALESCE(SUM(refund), 0) as refundSum,-->
+<!--            COALESCE(SUM(actual_amount), 0) as actualAmountSum-->
+<!--        FROM sys_order-->
+<!--        WHERE create_time BETWEEN #{startTime} AND #{endTime} ${params.dataScope}-->
+<!--    </select>-->
+
+    <select id="selectOrderStatisticsByTimeRange" parameterType="java.util.Map" resultType="com.ruoyi.system.domain.OrderAmount">
+        SELECT
+        COALESCE(SUM(total_amount), 0) as totalAmountSum,
+        COALESCE(SUM(deposit), 0) as depositSum,
+        COUNT(order_id) as orderCount,
+        COALESCE(SUM(collect_amount), 0) as collectAmountSum,
+        COALESCE(SUM(refund), 0) as refundSum,
+        COALESCE(SUM(actual_amount), 0) as actualAmountSum
+        FROM sys_order o
+        LEFT JOIN sys_user u ON o.user_id = u.user_id
+        LEFT JOIN sys_dept d ON o.dept_id = d.dept_id
+        <where>
+            o.create_time BETWEEN #{startTime} AND #{endTime}
+
+            ${dataScope}
+        </where>
+
     </select>
 
 

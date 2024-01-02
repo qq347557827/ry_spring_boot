@@ -1,9 +1,7 @@
 package com.ruoyi.system.service;
 
 import com.ruoyi.common.core.domain.AjaxResult;
-import com.ruoyi.system.domain.SysOrder;
-import com.ruoyi.system.domain.SysOrderAndCustomer;
-import com.ruoyi.system.domain.SysOrderExport;
+import com.ruoyi.system.domain.*;
 
 import java.util.List;
 
@@ -119,4 +117,5 @@ public interface ISysOrderService
     public int deleteSysOrderByOrderId(String orderId);
 
 //    public List ExcelShipmentOrderList(SysOrder sysOrder);
+    public OrderStatistics selectOrderStatistics(OrderStatistics orderStatistics);
 }

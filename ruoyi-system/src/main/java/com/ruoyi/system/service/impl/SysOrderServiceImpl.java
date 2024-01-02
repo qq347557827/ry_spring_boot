@@ -9,13 +9,18 @@ import com.ruoyi.common.utils.StringUtils;
 import com.ruoyi.system.domain.*;
 import com.ruoyi.system.mapper.CustomerMapper;
 import com.ruoyi.system.mapper.SysOrderMapper;
+import com.ruoyi.system.mapper.SysRoleMapper;
 import com.ruoyi.system.service.ISysOrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -31,6 +36,8 @@ public class SysOrderServiceImpl implements ISysOrderService {
 
     @Autowired
     private CustomerMapper customerMapper;
+    @Autowired
+    private SysRoleMapper sysRoleMapper;
 
     /**
      * 查询订单
@@ -78,6 +85,19 @@ public class SysOrderServiceImpl implements ISysOrderService {
         }
 
         for (SysOrderExport order : orderList) {
+
+            StringBuilder addressStr = new StringBuilder();
+            if (order.getProvince() != null) {
+                addressStr.append(order.getProvince()).append(" ");
+            }
+            if (order.getCity() != null) {
+                addressStr.append(order.getCity()).append(" ");
+            }
+            if (order.getDistrict() != null) {
+                addressStr.append(order.getDistrict()).append(" ");
+            }
+            String address = addressStr.append(order.getDetailAddress()).toString();
+            order.setAddress(address);
             StringBuilder strBuilder = new StringBuilder();
             if (order.getOrderGoodsList() != null && !order.getOrderGoodsList().isEmpty()) {
                 for (SysOrderGoods orderGoods : order.getOrderGoodsList()) {
@@ -85,6 +105,7 @@ public class SysOrderServiceImpl implements ISysOrderService {
                             .append("*")
                             .append(orderGoods.getQuantity())
                             .append(" + ");
+
                 }
                 // 移除末尾多余的"、"
                 System.out.printf("strBuilder", strBuilder);
@@ -156,7 +177,10 @@ public class SysOrderServiceImpl implements ISysOrderService {
         sysOrder.setUserId(userId);
         sysOrder.setOrderId(orderId);
         sysOrder.setStatus("1");
-        sysOrder.setWechat(customer.getWechat());
+        String wechat = customer.getWechat();
+        if ( wechat != null && wechat.isEmpty()) {
+            sysOrder.setWechat(customer.getWechat());
+        }
         sysOrder.setSourceChannel(customer.getSourceChannel());
         return sysOrder;
     }
@@ -412,6 +436,153 @@ public class SysOrderServiceImpl implements ISysOrderService {
         return sysOrderMapper.deleteSysOrderByOrderId(orderId);
     }
 
+    /*
+      查询本月总业绩
+
+      @param orderId 订单主键
+     * @return 结果
+     */
+
+
+//     public OrderAmount selectOrderAllAmount() {
+//         LocalDate today = LocalDate.now();
+//         // 今天
+//         LocalDateTime todayStart = today.atStartOfDay();
+//         LocalDateTime todayEnd = today.atTime(LocalTime.MAX);
+//         Map<String, Object> params = new HashMap<>();
+//
+//         params.put("startTime", todayStart);
+//         params.put("endTime", todayEnd);
+//         //         SysOrder order = new SysOrder();
+////         OrderStatistics statistics = new OrderStatistics();
+////         Float totalAmount = sysOrderMapper.getTotalAmountInThisMonth("total_amount");
+////         Float deposit = sysOrderMapper.getTotalAmountInThisMonth("deposit");
+////         Float collectAmount = sysOrderMapper.getTotalAmountInThisMonth("collect_amount");
+////         order.setTotalAmount(totalAmount);
+////         order.setDeposit(deposit);
+////         order.setCollectAmount(collectAmount);
+//         return SysOrderMapper.selectOrderStatisticsByTimeRange(params);
+//     };
+
+    public OrderAmount selectOrderAllAmount(LocalDateTime startTime,LocalDateTime endTime, Map<String, Object> params) {
+
+
+        params.put("startTime", startTime);
+        params.put("endTime", endTime);
+
+        // 使用 @Autowired 或其他方式注入 SysOrderMapper 的实例
+
+        // 处理返回结果
+        // ...
+
+        return sysOrderMapper.selectOrderStatisticsByTimeRange(params);
+    }
+
+    public OrderAmount selectOrderAllAmountByLocalDate (LocalDate startTime,LocalDateTime endTime, Map<String, Object> params) {
+
+
+
+        params.put("startTime", startTime);
+        params.put("endTime", endTime);
+
+        // 使用 @Autowired 或其他方式注入 SysOrderMapper 的实例
+
+        // 处理返回结果
+        // ...
+
+
+        return sysOrderMapper.selectOrderStatisticsByTimeRange(params);
+    }
+
+    public OrderStatistics selectOrderStatistics(OrderStatistics orderStatistics) {
+//        LoginUser loginUser = SecurityUtils.getLoginUser();
+//        System.out.printf("____dataspoce____loginUser ------" + String.valueOf(loginUser.getUser()) + "!!!!!!!!!!!!!!!!");
+//        if (StringUtils.isNotNull(loginUser))
+//        {
+//            SysUser currentUser = loginUser.getUser();
+//            // 如果是超级管理员，则不过滤数据
+//            if (StringUtils.isNotNull(currentUser) && !currentUser.isAdmin())
+//            {
+//                SysRoleMapper roleMapper = sysRoleMapper.selectRoleListByUserId(currentUser.getUserId());
+//
+//            }
+//        }
+
+
+        LocalDate today = LocalDate.now();
+        // 今天
+        LocalDateTime todayStart = today.atStartOfDay();
+        LocalDateTime todayEnd = today.atTime(LocalTime.MAX);
+//        Map<String, Object> params = orderStatistics.getParams();
+//        params.put("startTime", todayStart);
+//        params.put("endTime", todayEnd);
+        orderStatistics.setTodayStatistics(selectOrderAllAmount(todayStart, todayEnd, orderStatistics.getParams()));
+//        orderStatistics.setTodayStatistics(sysOrderMapper.selectOrderStatisticsByTimeRange(params));
+
+        // 昨天
+        LocalDate yesterday = today.minusDays(1);
+        LocalDateTime yesterdayStart = yesterday.atStartOfDay();
+        LocalDateTime yesterdayEnd = yesterday.atTime(LocalTime.MAX);
+        orderStatistics.setYesterdayStatistics(selectOrderAllAmount(yesterdayStart, yesterdayEnd, orderStatistics.getParams()));
+
+        // 本周
+        LocalDate thisWeekStart = today.with(java.time.DayOfWeek.MONDAY);
+        LocalDateTime thisWeekEnd = today.plusDays(6).atTime(LocalTime.MAX);
+        orderStatistics.setWeekStatistics(selectOrderAllAmountByLocalDate(thisWeekStart, thisWeekEnd, orderStatistics.getParams()));
+
+        // 本月
+        LocalDate thisMonthStart = today.withDayOfMonth(1);
+        LocalDateTime thisMonthEnd = today.withDayOfMonth(today.lengthOfMonth()).atTime(LocalTime.MAX);
+        orderStatistics.setMonthStatistics(selectOrderAllAmountByLocalDate(thisMonthStart, thisMonthEnd, orderStatistics.getParams()));
+
+        // 上月
+        LocalDate lastMonthStart = today.minusMonths(1).withDayOfMonth(1);
+        LocalDateTime lastMonthEnd = today.minusMonths(1).withDayOfMonth(today.minusMonths(1).lengthOfMonth()).atTime(LocalTime.MAX);
+        orderStatistics.setLastMonthStatistics(selectOrderAllAmountByLocalDate(lastMonthStart, lastMonthEnd, orderStatistics.getParams()));
+
+
+
+
+
+        return  orderStatistics;
+    };
+     /**
+     * 查询本月总定金
+     *
+     * @param orderId 订单主键
+     * @return 结果
+     */
+
+    /**
+     * 查询本月总代收
+     *
+     * @param orderId 订单主键
+     * @return 结果
+     */
+
+
+    /**
+     * 查询部门本月业绩
+     *
+     * @param orderId 订单主键
+     * @return 结果
+     */
+
+
+    /**
+     * 个人业绩排名
+     *
+     * @param orderId 订单主键
+     * @return 结果
+     */
+
+
+    /**
+     * 个人单数排名
+     *
+     * @param orderId 订单主键
+     * @return 结果
+     */
 //    public List ExcelShipmentOrderList(SysOrder sysOrder)
 //    {
 //        List sysOder = sysOrderMapper.selectSysOrderList(sysOrder);
