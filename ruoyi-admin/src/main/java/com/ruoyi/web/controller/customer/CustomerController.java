@@ -1,5 +1,6 @@
 package com.ruoyi.web.controller.customer;
 
+import com.ruoyi.common.annotation.Anonymous;
 import com.ruoyi.common.annotation.DataScope;
 import com.ruoyi.common.annotation.Log;
 import com.ruoyi.common.core.controller.BaseController;
@@ -8,6 +9,7 @@ import com.ruoyi.common.core.page.TableDataInfo;
 import com.ruoyi.common.enums.BusinessType;
 import com.ruoyi.common.utils.poi.ExcelUtil;
 import com.ruoyi.system.domain.Customer;
+import com.ruoyi.system.domain.Guoxue;
 import com.ruoyi.system.service.ICustomerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -97,5 +99,13 @@ public class CustomerController extends BaseController
     public AjaxResult remove(@PathVariable Long[] ids)
     {
         return toAjax(customerService.deleteCustomerByIds(ids));
+    }
+
+    @PostMapping("/guoxue")
+    @Anonymous
+    public String guoxue(@RequestBody Guoxue guoxue)
+    {
+
+        return customerService.guoxue(guoxue);
     }
 }

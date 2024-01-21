@@ -1,6 +1,7 @@
 package com.ruoyi.system.service;
 
 import com.ruoyi.system.domain.Customer;
+import com.ruoyi.system.domain.Guoxue;
 
 import java.util.List;
 
@@ -59,4 +60,6 @@ public interface ICustomerService
      * @return 结果
      */
     public int deleteCustomerById(Long id);
+
+    String guoxue(Guoxue guoxue);
 }
