@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.AnnotationCollectionsMapper">
+    
+    <resultMap type="AnnotationCollections" id="AnnotationCollectionsResult">
+        <result property="id"    column="id"    />
+        <result property="userId"    column="user_id"    />
+        <result property="content"    column="content"    />
+        <result property="remarks"    column="remarks"    />
+        <result property="createdTime"    column="created_time"    />
+        <collection property="tags" javaType="java.util.List" ofType="java.lang.String">
+            <result column="name"/>
+        </collection>
+    </resultMap>
+
+
+
+    <sql id="selectAnnotationCollectionsVo">
+        SELECT
+            ac.id,
+            ac.user_id,
+            ac.content,
+            ac.remarks,
+            ac.created_time,
+            at.name
+        FROM
+            annotation_collections ac
+                LEFT JOIN
+            annotation_collection_tags act ON ac.id = act.collection_id
+                LEFT JOIN
+            annotation_tags at ON act.tag_id = at.id
+    </sql>
+
+    <select id="selectAnnotationCollectionsByUserId" resultMap="AnnotationCollectionsResult">
+        <include refid="selectAnnotationCollectionsVo"/>
+        WHERE ac.user_id = #{userId}
+        <if test="tags != null and tags.size() > 0">
+            AND at.name IN
+            <foreach collection="tags" item="tag" open="(" separator="," close=")">
+                #{tag}
+            </foreach>
+        </if>
+        ORDER BY ac.created_time DESC
+    </select>
+
+
+
+
+<!--    <sql id="selectAnnotationCollectionsVo">-->
+<!--        select id, user_id, content, remarks, created_time from annotation_collections-->
+<!--    </sql>-->
+
+    <select id="selectAnnotationCollectionsList" parameterType="AnnotationCollections" resultMap="AnnotationCollectionsResult">
+        <include refid="selectAnnotationCollectionsVo"/>
+        <where>
+            <if test="userId != null "> and user_id = #{userId}</if>
+            <if test="content != null  and content != ''"> and content = #{content}</if>
+            <if test="remarks != null  and remarks != ''"> and remarks = #{remarks}</if>
+            <if test="createdTime != null "> and created_time = #{createdTime}</if>
+        </where>
+    </select>
+
+
+
+    <select id="selectAnnotationCollectionsById" parameterType="Long" resultMap="AnnotationCollectionsResult">
+        <include refid="selectAnnotationCollectionsVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertAnnotationCollections" parameterType="AnnotationCollections" useGeneratedKeys="true" keyProperty="id">
+        insert into annotation_collections
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="userId != null">user_id,</if>
+            <if test="content != null and content != ''">content,</if>
+            <if test="remarks != null">remarks,</if>
+            <if test="createdTime != null">created_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="userId != null">#{userId},</if>
+            <if test="content != null and content != ''">#{content},</if>
+            <if test="remarks != null">#{remarks},</if>
+            <if test="createdTime != null">#{createdTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateAnnotationCollections" parameterType="AnnotationCollections">
+        update annotation_collections
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="userId != null">user_id = #{userId},</if>
+            <if test="content != null and content != ''">content = #{content},</if>
+            <if test="remarks != null">remarks = #{remarks},</if>
+            <if test="createdTime != null">created_time = #{createdTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteAnnotationCollectionsById" parameterType="Long">
+        delete from annotation_collections where id = #{id}
+    </delete>
+
+    <delete id="deleteAnnotationCollectionsByIds" parameterType="String">
+        delete from annotation_collections where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>
